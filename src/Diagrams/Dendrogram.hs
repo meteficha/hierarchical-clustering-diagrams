@@ -14,6 +14,8 @@ import Data.Clustering.Hierarchical (Dendrogram(..))
 import Diagrams.Prelude
 
 
+-- | @dendrogram drawItem dendro@ is a drawing of the dendrogram
+-- @dendro@ using @drawItem@ to draw its leafs.
 dendrogram :: Renderable (Path R2) b =>
               (t -> AnnDiagram b R2 Any)
            -> Dendrogram t
