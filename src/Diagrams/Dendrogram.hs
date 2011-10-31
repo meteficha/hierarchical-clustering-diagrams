@@ -20,7 +20,7 @@ dendrogram :: Renderable (Path R2) b =>
               (t -> AnnDiagram b R2 Any)
            -> Dendrogram t
            -> AnnDiagram b R2 Any
-dendrogram drawItem = lineCap LineCapSquare . lw 0.1 . fst . drawDendro
+dendrogram drawItem = lineCap LineCapSquare . fst . drawDendro
   where
     drawDendro (Leaf a) = (dia, 0)
         where

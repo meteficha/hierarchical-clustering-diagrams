@@ -12,8 +12,8 @@ import Diagrams.Backend.Cairo.CmdLine (multiMain)
 import qualified Diagrams.Dendrogram as D
 
 main :: IO ()
-main = multiMain $ [ ("test", D.dendrogram char test) ] ++
-                   [ ("alpha-" ++ n, D.dendrogram char (alpha l))
+main = multiMain $ [ ("test", D.dendrogram char test # lw 0.1) ] ++
+                   [ ("alpha-" ++ n, D.dendrogram char (alpha l) # lw 0.1)
                      | (n,l) <- [ ("single",   SingleLinkage)
                                 , ("complete", CompleteLinkage)
                                 , ("clink",    CLINK)
