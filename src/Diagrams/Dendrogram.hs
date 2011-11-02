@@ -9,10 +9,10 @@ module Diagrams.Dendrogram
     ) where
 
 -- from base
-import Control.Arrow (second)
+import Control.Arrow (first, second)
 
 -- from hierarachical-clustering
-import Data.Clustering.Hierarchical (Dendrogram(..), elements)
+import Data.Clustering.Hierarchical (Dendrogram(..))
 
 -- from diagrams-lib
 import Diagrams.Prelude
@@ -24,37 +24,11 @@ dendrogram :: (Monoid m, Renderable (Path R2) b) =>
               (a -> AnnDiagram b R2 m)
               -> Dendrogram a
               -> AnnDiagram b R2 m
-dendrogram drawItem dendro = (stroke path_ # value mempty) === items
+dendrogram drawItem dendro = (stroke path_ # value mempty)
+                                         ===
+                                   (items # alignL)
   where
-    drawItems d = hcat [drawItem a # alignT # named n | (a, n) <- elements d]
-
-    dendroPath (Leaf (_, n))  = (mempty, getPos n)
-    dendroPath (Branch d l r) = (path <> pathL <> pathR, pos)
-        where
-          (pathL, P (xL, yL)) = dendroPath l
-          (pathR, P (xR, yR)) = dendroPath r
-
-          path = fromVertices [ P (xL, yL)
-                              , P (xL, d+y0)
-                              , P (xR, d+y0)
-                              , P (xR, yR)]
-          pos  = P ((xL + xR) / 2, d+y0)
-
-    named_     = numbered dendro
-    items      = drawItems named_
-    names_     = names items
-    getPos n   = let Just [(p, _)] = lookupN n names_ in p
-    (path_, _) = dendroPath named_
-
-    Just [(P (_, y0), _)] = lookupN (0 :: Int) names_
-
-numbered :: Dendrogram a -> Dendrogram (a, Int)
-numbered = snd . go 0
-    where
-      go n (Leaf a) = n `seq` (n+1, Leaf (a,n))
-      go n (Branch d l r) =
-          let (n', l') = go n l
-          in second (Branch d l') (go n' r)
+    (path_, items) = first dendrogramPath $ variableWidth drawItem dendro
 
 
 -- | A dendrogram path that can be 'stoke'd later.  This function
