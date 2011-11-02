@@ -78,8 +78,8 @@ testsMain = hspecX $ do
 
 diaMain :: IO ()
 diaMain =
-    multiMain $ [ ("test", D.dendrogram char test # lw 0.1) ] ++
-                [ ("alpha-" ++ n, D.dendrogram char (alpha l) # lw 0.1)
+    multiMain $ [ ("test", D.dendrogram D.Variable char test # lw 0.1) ] ++
+                [ ("alpha-" ++ n, D.dendrogram D.Fixed char (alpha l) # lw 0.1)
                   | (n,l) <- [ ("single",   SingleLinkage)
                              , ("complete", CompleteLinkage)
                              , ("clink",    CLINK)

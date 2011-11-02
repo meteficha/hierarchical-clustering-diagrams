@@ -5,20 +5,20 @@ module Diagrams.Dendrogram
     ( -- * High-level interface
       -- $runnableExample
       dendrogram
+    , Width(..)
 
       -- * Low-level interface
     , dendrogramPath
     , fixedWidth
     , variableWidth
     , X
-    , Width
     ) where
 
 -- from base
 import Control.Arrow (first, second)
 
--- from hierarachical-clustering
-import Data.Clustering.Hierarchical (Dendrogram(..))
+-- from hierarchical-clustering
+import Data.Clustering.Hierarchical (Dendrogram(..), elements)
 
 -- from diagrams-lib
 import Diagrams.Prelude
@@ -28,8 +28,8 @@ import Diagrams.Prelude
 --
 -- Given a dendrogram @dendro :: 'Dendrogram' a@ and a function
 -- @drawItem :: a -> Diagram b R2@ for drawing the items on the
--- leaves of @dendro@, just use @'dendrogram' drawItem dendro ::
--- Diagram b R2@ to draw a diagram of @dendro@.
+-- leaves of @dendro@, just use @'dendrogram' 'Variable' drawItem
+-- dendro :: Diagram b R2@ to draw a diagram of @dendro@.
 --
 -- Runnable example which produces something like
 -- <https://patch-tag.com/r/felipe/hierarchical-clustering-diagrams/snapshot/current/content/pretty/example.png>:
@@ -44,7 +44,7 @@ import Diagrams.Prelude
 --main = defaultMain diagram
 --
 --diagram :: Diagram Cairo R2
---diagram = D.'dendrogram' char test \# lw 0.1 \# pad 1.1
+--diagram = D.'dendrogram' 'Fixed' char test \# lw 0.1 \# pad 1.1
 --
 --char :: Char -> Diagram Cairo R2
 --char c = pad 1.3 $ roundedRect (1,1) 0.1 \`atop\` text [c]
@@ -60,17 +60,43 @@ import Diagrams.Prelude
 -- @
 
 
--- | @dendrogram drawItem dendro@ is a drawing of the dendrogram
--- @dendro@ using @drawItem@ to draw its leafs.
+-- | @dendrogram width drawItem dendro@ is a drawing of the
+-- dendrogram @dendro@ using @drawItem@ to draw its leafs.  The
+-- @width@ parameter controls how whether all items have the same
+-- width or not ('Fixed' or 'Variable', respectively, see
+-- 'Width').
+--
+-- Note: you should probably use 'alignT' to align your items.
 dendrogram :: (Monoid m, Renderable (Path R2) b) =>
-              (a -> AnnDiagram b R2 m)
-              -> Dendrogram a
-              -> AnnDiagram b R2 m
-dendrogram drawItem dendro = (stroke path_ # value mempty)
-                                         ===
-                                   (items # alignL)
+              Width
+           -> (a -> AnnDiagram b R2 m)
+           -> Dendrogram a
+           -> AnnDiagram b R2 m
+dendrogram width_ drawItem dendro = (stroke path_ # value mempty)
+                                               ===
+                                         (items # alignL)
   where
-    (path_, items) = first dendrogramPath $ variableWidth drawItem dendro
+    (path_, items) =
+        case width_ of
+          Fixed -> let drawnItems = map drawItem (elements dendro)
+                       w = width (head drawnItems)
+                       (dendro', _) = fixedWidth w dendro
+                   in (dendrogramPath dendro', hcat drawnItems)
+          Variable -> first dendrogramPath $ variableWidth drawItem dendro
+
+
+-- | The width of the items on the leafs of a dendrogram.
+data Width =
+      Fixed
+      -- ^ @Fixed@ assumes that all items have a fixed width
+      -- (which is automatically calculated).  This mode is
+      -- faster than @Variable@, especially when you have many
+      -- items.
+    | Variable
+      -- ^ @Variable@ does not assume that all items have a fixed
+      -- width, so each item may have a different width.  This
+      -- mode is slower since it has to calculate the width of
+      -- each item separately.
 
 
 -- | A dendrogram path that can be 'stroke'd later.  This function
@@ -99,7 +125,7 @@ type X = Double
 -- | @fixedWidth w@ positions the 'Leaf'@s@ of a 'Dendrogram'
 -- assuming that they have the same width @w@.  Also returns the
 -- total width.
-fixedWidth :: Width -> Dendrogram a -> (Dendrogram X, Width)
+fixedWidth :: Double -> Dendrogram a -> (Dendrogram X, Double)
 fixedWidth w = second (subtract half_w) . go half_w
     where
       half_w = w/2
@@ -133,7 +159,3 @@ variableWidth draw = finish . go 0
             (l', !y',  diaL) = go y  l
             (r', !y'', diaR) = go y' r
       finish (dendro, _, dia) = (dendro, dia)
-
-
--- | The width of something.
-type Width = Double
