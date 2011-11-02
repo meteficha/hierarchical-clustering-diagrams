@@ -36,7 +36,7 @@ import Diagrams.Prelude
 --
 -- @
 --import Data.Clustering.Hierarchical (Dendrogram(..))
---import Diagrams.Prelude (Diagram, R2, atop, lw, pad, roundedRect, text, (#))
+--import Diagrams.Prelude (Diagram, R2, atop, lw, pad, roundedRect, text, (\#))
 --import Diagrams.Backend.Cairo.CmdLine (Cairo, defaultMain)
 --import qualified Diagrams.Dendrogram as D
 --
@@ -44,7 +44,7 @@ import Diagrams.Prelude
 --main = defaultMain diagram
 --
 --diagram :: Diagram Cairo R2
---diagram = D.'dendrogram' char test # lw 0.1 # pad 1.1
+--diagram = D.'dendrogram' char test \# lw 0.1 \# pad 1.1
 --
 --char :: Char -> Diagram Cairo R2
 --char c = pad 1.3 $ roundedRect (1,1) 0.1 \`atop\` text [c]
