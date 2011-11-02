@@ -17,6 +17,7 @@ Description:
 
 Extra-source-files:
   tests/runtests.hs
+  example.png
 
 Source-repository head
   type: darcs
