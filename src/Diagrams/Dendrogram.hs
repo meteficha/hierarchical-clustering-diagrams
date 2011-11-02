@@ -1,11 +1,17 @@
 {-# LANGUAGE BangPatterns, FlexibleContexts #-}
-
+-- | This module contain functions for drawing diagrams of
+-- dendrograms.
 module Diagrams.Dendrogram
-    ( dendrogram
+    ( -- * High-level interface
+      -- $runnableExample
+      dendrogram
+
+      -- * Low-level interface
     , dendrogramPath
     , fixedWidth
     , variableWidth
     , X
+    , Width
     ) where
 
 -- from base
@@ -16,6 +22,41 @@ import Data.Clustering.Hierarchical (Dendrogram(..))
 
 -- from diagrams-lib
 import Diagrams.Prelude
+
+
+-- $runnableExample
+--
+-- Given a dendrogram @dendro :: 'Dendrogram' a@ and a function
+-- @drawItem :: a -> Diagram b R2@ for drawing the items on the
+-- leaves of @dendro@, just use @'dendrogram' drawItem dendro ::
+-- Diagram b R2@ to draw a diagram of @dendro@.
+--
+-- Runnable example:
+--
+-- @
+--import Data.Clustering.Hierarchical (Dendrogram(..))
+--import Diagrams.Prelude (Diagram, R2, atop, lw, pad, roundedRect, text, (#))
+--import Diagrams.Backend.Cairo.CmdLine (Cairo, defaultMain)
+--import qualified Diagrams.Dendrogram as D
+--
+--main :: IO ()
+--main = defaultMain diagram
+--
+--diagram :: Diagram Cairo R2
+--diagram = D.'dendrogram' char test # lw 0.1
+--
+--char :: Char -> Diagram Cairo R2
+--char c = pad 1.3 $ roundedRect (1,1) 0.1 \`atop\` text [c]
+--
+--test :: Dendrogram Char
+--test = Branch 5
+--         (Branch 2
+--           (Branch 1
+--             (Leaf \'A\')
+--             (Leaf \'B\'))
+--           (Leaf \'C\'))
+--         (Leaf \'D\')
+-- @
 
 
 -- | @dendrogram drawItem dendro@ is a drawing of the dendrogram
@@ -31,7 +72,7 @@ dendrogram drawItem dendro = (stroke path_ # value mempty)
     (path_, items) = first dendrogramPath $ variableWidth drawItem dendro
 
 
--- | A dendrogram path that can be 'stoke'd later.  This function
+-- | A dendrogram path that can be 'stroke'd later.  This function
 -- assumes that the 'Leaf'@s@ of your 'Dendrogram' are already in
 -- the right position.
 dendrogramPath :: Dendrogram X -> Path R2
