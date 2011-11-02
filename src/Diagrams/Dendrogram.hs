@@ -36,7 +36,7 @@ dendrogram drawItem dendro = (stroke path_ # value mempty) === items
                               , P (xR, yR)]
           pos  = P ((xL + xR) / 2, d+y0)
 
-    named_     = nameDendrogram dendro
+    named_     = numbered dendro
     items      = drawItems named_
     names_     = names items
     getPos n   = let Just [(p, _)] = lookupN n names_ in p
@@ -44,8 +44,8 @@ dendrogram drawItem dendro = (stroke path_ # value mempty) === items
 
     Just [(P (_, y0), _)] = lookupN (0 :: Int) names_
 
-nameDendrogram :: Dendrogram a -> Dendrogram (a, Int)
-nameDendrogram = snd . go 0
+numbered :: Dendrogram a -> Dendrogram (a, Int)
+numbered = snd . go 0
     where
       go n (Leaf a) = n `seq` (n+1, Leaf (a,n))
       go n (Branch d l r) =
