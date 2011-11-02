@@ -5,6 +5,7 @@ module Diagrams.Dendrogram
     , dendrogramPath
     , fixedWidth
     , variableWidth
+    , X
     ) where
 
 -- from base
@@ -59,10 +60,10 @@ numbered = snd . go 0
 -- | A dendrogram path that can be 'stoke'd later.  This function
 -- assumes that the 'Leaf'@s@ of your 'Dendrogram' are already in
 -- the right position.
-dendrogramPath :: Dendrogram Y -> Path R2
+dendrogramPath :: Dendrogram X -> Path R2
 dendrogramPath = mconcat . fst . go []
     where
-      go acc (Leaf y)       = (acc, (0, y))
+      go acc (Leaf x)       = (acc, (x, 0))
       go acc (Branch d l r) = (path : acc'', pos)
         where
           (acc',  (!xL, !yL)) = go acc  l
@@ -76,13 +77,13 @@ dendrogramPath = mconcat . fst . go []
 
 
 -- | The horizontal position of a dendrogram Leaf.
-type Y = Double
+type X = Double
 
 
 -- | @fixedWidth w@ positions the 'Leaf'@s@ of a 'Dendrogram'
 -- assuming that they have the same width @w@.  Also returns the
 -- total width.
-fixedWidth :: Width -> Dendrogram a -> (Dendrogram Y, Width)
+fixedWidth :: Width -> Dendrogram a -> (Dendrogram X, Width)
 fixedWidth w = second (subtract half_w) . go half_w
     where
       half_w = w/2
@@ -102,7 +103,7 @@ fixedWidth w = second (subtract half_w) . go half_w
 variableWidth :: (Monoid m) =>
                  (a -> AnnDiagram b R2 m)
               -> Dendrogram a
-              -> (Dendrogram Y, AnnDiagram b R2 m)
+              -> (Dendrogram X, AnnDiagram b R2 m)
 variableWidth draw = finish . go 0
     where
       go !y (Leaf a) = (Leaf y', y'', dia)
@@ -111,7 +112,7 @@ variableWidth draw = finish . go 0
             !w   = width dia
             !y'  = y + w/2
             !y'' = y + w
-      go !y (Branch d l r) = (Branch d l' r', y'', diaL <> diaR)
+      go !y (Branch d l r) = (Branch d l' r', y'', diaL ||| diaR)
           where
             (l', !y',  diaL) = go y  l
             (r', !y'', diaR) = go y' r
