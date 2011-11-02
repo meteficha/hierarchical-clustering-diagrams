@@ -42,5 +42,8 @@ Test-suite runtests
     , diagrams-lib            == 0.4.*
     , diagrams-cairo          == 0.4.*
 
+    , hspec                   == 0.9.*
+    , HUnit                   == 1.2.*
+
     , hierarchical-clustering-diagrams
   GHC-options: -Wall
