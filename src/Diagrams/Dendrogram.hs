@@ -12,6 +12,7 @@ module Diagrams.Dendrogram
     , fixedWidth
     , variableWidth
     , X
+    , hcatB
     ) where
 
 -- from base
@@ -81,7 +82,7 @@ dendrogram width_ drawItem dendro = (stroke path_ # value mempty)
           Fixed -> let drawnItems = map drawItem (elements dendro)
                        w = width (head drawnItems)
                        (dendro', _) = fixedWidth w dendro
-                   in (dendrogramPath dendro', hcat drawnItems)
+                   in (dendrogramPath dendro', hcatB drawnItems)
           Variable -> first dendrogramPath $ variableWidth drawItem dendro
 
 
@@ -146,16 +147,30 @@ variableWidth :: (Monoid m) =>
                  (a -> AnnDiagram b R2 m)
               -> Dendrogram a
               -> (Dendrogram X, AnnDiagram b R2 m)
-variableWidth draw = finish . go 0
+variableWidth draw = finish . go 0 []
     where
-      go !y (Leaf a) = (Leaf y', y'', dia)
+      go !y acc (Leaf a) = (Leaf y', y'', dia : acc)
           where
             dia  = draw a
             !w   = width dia
             !y'  = y + w/2
             !y'' = y + w
-      go !y (Branch d l r) = (Branch d l' r', y'', diaL ||| diaR)
+      go !y acc (Branch d l r) = (Branch d l' r', y'', acc'')
           where
-            (l', !y',  diaL) = go y  l
-            (r', !y'', diaR) = go y' r
-      finish (dendro, _, dia) = (dendro, dia)
+            (l', !y',  acc'') = go y  acc' l -- yes, this is acc'
+            (r', !y'', acc')  = go y' acc r
+      finish (dendro, _, dias) = (dendro, hcatB dias)
+      -- We used to concatenate diagrams inside 'go' using (|||).
+      -- However, pathological dendrograms (such as those created
+      -- using single linkage) may be highly unbalanced, creating
+      -- a performance problem for 'variableWidth'.
+
+
+-- | Like 'hcat', but balanced.  Much better performance.  Use it
+-- for concatenating the items of your dendrogram.
+hcatB :: Monoid m => [AnnDiagram b R2 m] -> AnnDiagram b R2 m
+hcatB [y] = y
+hcatB ys  = hcatB $ dubs ys
+  where dubs (x1:x2:xs) = x1 ||| x2 : dubs xs
+        dubs [x]        = [x]
+        dubs []         = []
