@@ -45,7 +45,7 @@ import Diagrams.Prelude
 --main = defaultMain diagram
 --
 --diagram :: Diagram Cairo R2
---diagram = D.'dendrogram' 'Fixed' char test \# lw 0.1 \# pad 1.1
+--diagram = D.'dendrogram' 'D.Fixed' char test \# lw 0.1 \# pad 1.1
 --
 --char :: Char -> Diagram Cairo R2
 --char c = pad 1.3 $ roundedRect (1,1) 0.1 \`atop\` text [c]
@@ -100,7 +100,7 @@ data Width =
       -- each item separately.
 
 
--- | A dendrogram path that can be 'stroke'd later.  This function
+-- | A dendrogram path that can be 'stroke'@d@ later.  This function
 -- assumes that the 'Leaf'@s@ of your 'Dendrogram' are already in
 -- the right position.
 dendrogramPath :: Dendrogram X -> Path R2
