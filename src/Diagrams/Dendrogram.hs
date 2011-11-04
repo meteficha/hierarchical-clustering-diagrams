@@ -116,7 +116,7 @@ dendrogramPath = mconcat . fst . go []
                               , P (xL, d)
                               , P (xR, d)
                               , P (xR, yR)]
-          pos  = ((xL + xR) / 2, d)
+          pos  = (xL + (xR - xL) / 2, d)
 
 
 -- | The horizontal position of a dendrogram Leaf.
