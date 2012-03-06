@@ -1,5 +1,5 @@
 Name:                hierarchical-clustering-diagrams
-Version:             0.1.0.1
+Version:             0.2
 Synopsis:            Draw diagrams of dendrograms made by hierarchical-clustering.
 License:             BSD3
 License-file:        LICENSE
@@ -33,7 +33,7 @@ Library
 
     , hierarchical-clustering == 0.4.*
 
-    , diagrams-lib            == 0.4.*
+    , diagrams-lib            == 0.5.*
   GHC-options: -Wall
 
 Test-suite runtests
@@ -45,8 +45,8 @@ Test-suite runtests
 
     , hierarchical-clustering == 0.4.*
 
-    , diagrams-lib            == 0.4.*
-    , diagrams-cairo          == 0.4.*
+    , diagrams-lib            == 0.5.*
+    , diagrams-cairo          == 0.5.*
 
     , hspec                   == 0.9.*
     , HUnit                   == 1.2.*

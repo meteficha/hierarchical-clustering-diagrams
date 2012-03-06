@@ -68,11 +68,11 @@ import Diagrams.Prelude
 -- 'Width').
 --
 -- Note: you should probably use 'alignT' to align your items.
-dendrogram :: (Monoid m, Renderable (Path R2) b) =>
+dendrogram :: (Monoid m, Semigroup m, Renderable (Path R2) b) =>
               Width
-           -> (a -> AnnDiagram b R2 m)
+           -> (a -> QDiagram b R2 m)
            -> Dendrogram a
-           -> AnnDiagram b R2 m
+           -> QDiagram b R2 m
 dendrogram width_ drawItem dendro = (stroke path_ # value mempty)
                                                ===
                                          (items # alignL)
@@ -112,10 +112,10 @@ dendrogramPath = mconcat . fst . go []
           (acc',  (!xL, !yL)) = go acc  l
           (acc'', (!xR, !yR)) = go acc' r
 
-          path = fromVertices [ P (xL, yL)
-                              , P (xL, d)
-                              , P (xR, d)
-                              , P (xR, yR)]
+          path = fromVertices [ p2 (xL, yL)
+                              , p2 (xL, d)
+                              , p2 (xR, d)
+                              , p2 (xR, yR)]
           pos  = (xL + (xR - xL) / 2, d)
 
 
@@ -143,10 +143,10 @@ fixedWidth w = second (subtract half_w) . go half_w
 -- resulting diagram having all 'Leaf'@s@ drawn side-by-side.
 --
 -- Note: you should probably use 'alignT' to align your items.
-variableWidth :: (Monoid m) =>
-                 (a -> AnnDiagram b R2 m)
+variableWidth :: (Semigroup m, Monoid m) =>
+                 (a -> QDiagram b R2 m)
               -> Dendrogram a
-              -> (Dendrogram X, AnnDiagram b R2 m)
+              -> (Dendrogram X, QDiagram b R2 m)
 variableWidth draw = finish . go 0 []
     where
       go !y acc (Leaf a) = (Leaf y', y'', dia : acc)
@@ -168,7 +168,7 @@ variableWidth draw = finish . go 0 []
 
 -- | Like 'hcat', but balanced.  Much better performance.  Use it
 -- for concatenating the items of your dendrogram.
-hcatB :: Monoid m => [AnnDiagram b R2 m] -> AnnDiagram b R2 m
+hcatB :: (Monoid m, Semigroup m) => [QDiagram b R2 m] -> QDiagram b R2 m
 hcatB [y] = y
 hcatB ys  = hcatB $ dubs ys
   where dubs (x1:x2:xs) = x1 ||| x2 : dubs xs
