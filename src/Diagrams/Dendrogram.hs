@@ -12,7 +12,6 @@ module Diagrams.Dendrogram
     , fixedWidth
     , variableWidth
     , X
-    , hcatB
     ) where
 
 -- from base
@@ -82,7 +81,7 @@ dendrogram width_ drawItem dendro = (stroke path_ # value mempty)
           Fixed -> let drawnItems = map drawItem (elements dendro)
                        w = width (head drawnItems)
                        (dendro', _) = fixedWidth w dendro
-                   in (dendrogramPath dendro', hcatB drawnItems)
+                   in (dendrogramPath dendro', hcat drawnItems)
           Variable -> first dendrogramPath $ variableWidth drawItem dendro
 
 
@@ -159,18 +158,8 @@ variableWidth draw = finish . go 0 []
           where
             (l', !y',  acc'') = go y  acc' l -- yes, this is acc'
             (r', !y'', acc')  = go y' acc r
-      finish (dendro, _, dias) = (dendro, hcatB dias)
+      finish (dendro, _, dias) = (dendro, hcat dias)
       -- We used to concatenate diagrams inside 'go' using (|||).
       -- However, pathological dendrograms (such as those created
       -- using single linkage) may be highly unbalanced, creating
       -- a performance problem for 'variableWidth'.
-
-
--- | Like 'hcat', but balanced.  Much better performance.  Use it
--- for concatenating the items of your dendrogram.
-hcatB :: (Monoid m, Semigroup m) => [QDiagram b R2 m] -> QDiagram b R2 m
-hcatB [y] = y
-hcatB ys  = hcatB $ dubs ys
-  where dubs (x1:x2:xs) = x1 ||| x2 : dubs xs
-        dubs [x]        = [x]
-        dubs []         = []
