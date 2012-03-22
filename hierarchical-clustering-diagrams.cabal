@@ -1,5 +1,5 @@
 Name:                hierarchical-clustering-diagrams
-Version:             0.2
+Version:             0.3
 Synopsis:            Draw diagrams of dendrograms made by hierarchical-clustering.
 License:             BSD3
 License-file:        LICENSE

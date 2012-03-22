@@ -6,6 +6,7 @@ module Diagrams.Dendrogram
       -- $runnableExample
       dendrogram
     , Width(..)
+    , dendrogram'
 
       -- * Low-level interface
     , dendrogramPath
@@ -15,7 +16,7 @@ module Diagrams.Dendrogram
     ) where
 
 -- from base
-import Control.Arrow (first, second)
+import Control.Arrow (second)
 
 -- from hierarchical-clustering
 import Data.Clustering.Hierarchical (Dendrogram(..), elements)
@@ -72,17 +73,30 @@ dendrogram :: (Monoid m, Semigroup m, Renderable (Path R2) b) =>
            -> (a -> QDiagram b R2 m)
            -> Dendrogram a
            -> QDiagram b R2 m
-dendrogram width_ drawItem dendro = (stroke path_ # value mempty)
-                                               ===
-                                         (items # alignL)
+dendrogram = ((fst .) .) . dendrogram'
+
+
+-- | Same as 'dendrogram', but also returns the 'Dendrogram' with
+-- positions.
+dendrogram' :: (Monoid m, Semigroup m, Renderable (Path R2) b) =>
+               Width
+            -> (a -> QDiagram b R2 m)
+            -> Dendrogram a
+            -> (QDiagram b R2 m, Dendrogram (a, X))
+dendrogram' width_ drawItem dendro = (dia, dendroX)
   where
-    (path_, items) =
+    dia = (stroke path_ # value mempty)
+                       ===
+                 (items # alignL)
+
+    path_ = dendrogramPath (fmap snd dendroX)
+
+    (dendroX, items) =
         case width_ of
-          Fixed -> let drawnItems = map drawItem (elements dendro)
-                       w = width (head drawnItems)
-                       (dendro', _) = fixedWidth w dendro
-                   in (dendrogramPath dendro', hcat drawnItems)
-          Variable -> first dendrogramPath $ variableWidth drawItem dendro
+          Fixed    -> let drawnItems = map drawItem (elements dendro)
+                          w = width (head drawnItems)
+                      in (fst $ fixedWidth w dendro, hcat drawnItems)
+          Variable -> variableWidth drawItem dendro
 
 
 -- | The width of the items on the leafs of a dendrogram.
@@ -125,11 +139,11 @@ type X = Double
 -- | @fixedWidth w@ positions the 'Leaf'@s@ of a 'Dendrogram'
 -- assuming that they have the same width @w@.  Also returns the
 -- total width.
-fixedWidth :: Double -> Dendrogram a -> (Dendrogram X, Double)
+fixedWidth :: Double -> Dendrogram a -> (Dendrogram (a, X), Double)
 fixedWidth w = second (subtract half_w) . go half_w
     where
       half_w = w/2
-      go !y (Leaf _)       = (Leaf y, y + w)
+      go !y (Leaf datum)   = (Leaf (datum, y), y + w)
       go !y (Branch d l r) = (Branch d l' r', y'')
           where
             (l', !y')  = go y  l
@@ -145,10 +159,10 @@ fixedWidth w = second (subtract half_w) . go half_w
 variableWidth :: (Semigroup m, Monoid m) =>
                  (a -> QDiagram b R2 m)
               -> Dendrogram a
-              -> (Dendrogram X, QDiagram b R2 m)
+              -> (Dendrogram (a, X), QDiagram b R2 m)
 variableWidth draw = finish . go 0 []
     where
-      go !y acc (Leaf a) = (Leaf y', y'', dia : acc)
+      go !y acc (Leaf a) = (Leaf (a,y'), y'', dia : acc)
           where
             dia  = draw a
             !w   = width dia
