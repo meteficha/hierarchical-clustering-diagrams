@@ -1,4 +1,5 @@
 -- from base
+import Control.Arrow (first)
 import System.Environment (getArgs)
 
 -- from hierarchical-clustering
@@ -35,7 +36,7 @@ testsMain :: IO ()
 testsMain = hspecX $ do
   describe "fixedWidth" $ do
     it "works on a test example" $
-       D.fixedWidth 1 test ~?=
+       first (fmap snd) (D.fixedWidth 1 test) ~?=
           ( Branch 5
               (Branch 2
                 (Branch 1
@@ -49,7 +50,7 @@ testsMain = hspecX $ do
     let r :: Double -> Diagram Cairo R2
         r w = rect w 40
     it "works on a test example with fixed widths" $
-       fst (D.variableWidth (const $ r 1) test) ~?=
+       (fmap snd . fst) (D.variableWidth (const $ r 1) test) ~?=
           Branch 5
             (Branch 2
               (Branch 1
@@ -64,7 +65,7 @@ testsMain = hspecX $ do
         f 'D' = 1
         f _   = undefined
     it "works on a test example with variable widths" $
-       fst (D.variableWidth r test2) ~?=
+       (fmap snd . fst) (D.variableWidth r test2) ~?=
           Branch 5
             (Branch 2
               (Branch 1
@@ -89,7 +90,7 @@ diaMain =
 
 
 char :: Char -> Diagram Cairo R2
-char c = pad 1.3 $ roundedRect (1,1) 0.1 `atop` text [c]
+char c = pad 1.3 $ roundedRect 1 1 0.1 `atop` text [c]
 
 test :: Dendrogram Char
 test = Branch 5
