@@ -11,7 +11,7 @@ Cabal-version:       >=1.8
 Description:
   This package contains functions for drawing diagrams of
   dendrograms.  You may see a simple image sample at
-  <https://patch-tag.com/r/felipe/hierarchical-clustering-diagrams/snapshot/current/content/pretty/example.png>.
+  <https://github.com/meteficha/hierarchical-clustering-diagrams/blob/master/example.png>.
   See the documentation at "Diagrams.Dendrogram" to see how to
   reproduce this diagram.
 
@@ -21,7 +21,7 @@ Extra-source-files:
 
 Source-repository head
   type: darcs
-  location: http://patch-tag.com/r/felipe/hierarchical-clustering-diagrams
+  location: https://github.com/meteficha/hierarchical-clustering-diagrams
 
 
 Library
