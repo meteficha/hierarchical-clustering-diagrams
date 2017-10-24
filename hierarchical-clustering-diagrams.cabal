@@ -31,9 +31,9 @@ Library
   Build-depends:
       base                    == 4.*
 
-    , hierarchical-clustering == 0.4.*
+    , hierarchical-clustering
 
-    , diagrams-lib            == 0.5.*
+    , diagrams-lib
   GHC-options: -Wall
 
 Test-suite runtests
