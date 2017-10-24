@@ -22,7 +22,7 @@ import Control.Arrow (second)
 import Data.Clustering.Hierarchical (Dendrogram(..), elements)
 
 -- from diagrams-lib
-import Diagrams.Prelude
+import Diagrams.Prelude hiding (elements)
 
 
 -- $runnableExample
