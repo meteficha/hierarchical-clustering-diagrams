@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, FlexibleContexts #-}
+{-# LANGUAGE BangPatterns, FlexibleContexts, TypeFamilies #-}
 -- | This module contain functions for drawing diagrams of
 -- dendrograms.
 module Diagrams.Dendrogram
@@ -28,26 +28,26 @@ import Diagrams.Prelude
 -- $runnableExample
 --
 -- Given a dendrogram @dendro :: 'Dendrogram' a@ and a function
--- @drawItem :: a -> Diagram b R2@ for drawing the items on the
+-- @drawItem :: a -> Diagram b@ for drawing the items on the
 -- leaves of @dendro@, just use @'dendrogram' 'Variable' drawItem
--- dendro :: Diagram b R2@ to draw a diagram of @dendro@.
+-- dendro :: Diagram b@ to draw a diagram of @dendro@.
 --
 -- Runnable example which produces something like
 -- <https://patch-tag.com/r/felipe/hierarchical-clustering-diagrams/snapshot/current/content/pretty/example.png>:
 --
 -- @
 --import Data.Clustering.Hierarchical (Dendrogram(..))
---import Diagrams.Prelude (Diagram, R2, atop, lw, pad, roundedRect, text, (\#))
+--import Diagrams.Prelude (Diagram, atop, lw, pad, roundedRect, text, (\#))
 --import Diagrams.Backend.Cairo.CmdLine (Cairo, defaultMain)
 --import qualified Diagrams.Dendrogram as D
 --
 --main :: IO ()
 --main = defaultMain diagram
 --
---diagram :: Diagram Cairo R2
+--diagram :: Diagram Cairo
 --diagram = D.'dendrogram' 'D.Fixed' char test \# lw 0.1 \# pad 1.1
 --
---char :: Char -> Diagram Cairo R2
+--char :: Char -> Diagram Cairo
 --char c = pad 1.3 $ roundedRect (1,1) 0.1 \`atop\` text [c]
 --
 --test :: Dendrogram Char
@@ -68,21 +68,21 @@ import Diagrams.Prelude
 -- 'Width').
 --
 -- Note: you should probably use 'alignT' to align your items.
-dendrogram :: (Monoid m, Semigroup m, Renderable (Path R2) b) =>
+dendrogram :: (Monoid m, Semigroup m, Renderable (Path V2 Double) b) =>
               Width
-           -> (a -> QDiagram b R2 m)
+           -> (a -> QDiagram b V2 Double m)
            -> Dendrogram a
-           -> QDiagram b R2 m
+           -> QDiagram b V2 Double m
 dendrogram = ((fst .) .) . dendrogram'
 
 
 -- | Same as 'dendrogram', but also returns the 'Dendrogram' with
 -- positions.
-dendrogram' :: (Monoid m, Semigroup m, Renderable (Path R2) b) =>
+dendrogram' :: (Monoid m, Semigroup m, Renderable (Path V2 Double) b) =>
                Width
-            -> (a -> QDiagram b R2 m)
+            -> (a -> QDiagram b V2 Double m)
             -> Dendrogram a
-            -> (QDiagram b R2 m, Dendrogram (a, X))
+            -> (QDiagram b V2 Double m, Dendrogram (a, X))
 dendrogram' width_ drawItem dendro = (dia, dendroX)
   where
     dia = (stroke path_ # value mempty)
@@ -93,7 +93,7 @@ dendrogram' width_ drawItem dendro = (dia, dendroX)
 
     (dendroX, items) =
         case width_ of
-          Fixed    -> let drawnItems = map drawItem (elements dendro)
+          Fixed    -> let drawnItems = map drawItem (Data.Clustering.Hierarchical.elements dendro)
                           w = width (head drawnItems)
                       in (fst $ fixedWidth w dendro, hcat drawnItems)
           Variable -> variableWidth drawItem dendro
@@ -116,7 +116,7 @@ data Width =
 -- | A dendrogram path that can be 'stroke'@d@ later.  This function
 -- assumes that the 'Leaf'@s@ of your 'Dendrogram' are already in
 -- the right position.
-dendrogramPath :: Dendrogram X -> Path R2
+dendrogramPath :: Dendrogram X -> Path V2 Double
 dendrogramPath = mconcat . fst . go []
     where
       go acc (Leaf x)       = (acc, (x, 0))
@@ -157,9 +157,9 @@ fixedWidth w = second (subtract half_w) . go half_w
 --
 -- Note: you should probably use 'alignT' to align your items.
 variableWidth :: (Semigroup m, Monoid m) =>
-                 (a -> QDiagram b R2 m)
+                 (a -> QDiagram b V2 Double m)
               -> Dendrogram a
-              -> (Dendrogram (a, X), QDiagram b R2 m)
+              -> (Dendrogram (a, X), QDiagram b V2 Double m)
 variableWidth draw = finish . go 0 []
     where
       go !y acc (Leaf a) = (Leaf (a,y'), y'', dia : acc)
