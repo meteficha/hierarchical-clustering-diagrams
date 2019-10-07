@@ -48,7 +48,7 @@ Test-suite runtests
     , diagrams-lib            == 1.4.*
     , diagrams-cairo          == 1.4.*
 
-    , hspec                   == 2.7.*
+    , hspec                   >= 2.6
     , HUnit                   == 1.6.*
 
     , hierarchical-clustering-diagrams

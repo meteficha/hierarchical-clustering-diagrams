@@ -1,1 +1,11 @@
-resolver: nightly-2015-06-09
+# https://docs.haskellstack.org/en/stable/yaml_configuration/
+resolver: lts-13.27
+packages:
+- .
+extra-deps:
+- hierarchical-clustering-0.4.7@sha256:85beadd12f6c1dc2836478068291277c5e89a6e706d4fc8a652b7be8a918b5c4,3335
+- diagrams-cairo-1.4.1@sha256:e08f15a15146da9222344fbc433ccd6103c0a7f1e9dfe21bb1e3d3e36ad83947,3820
+- cairo-0.13.6.0@sha256:a9122d48957a2dbb5a177e5068b850efa1e99bb22c68eb2571165c3c945a8dd6,4187
+- pango-0.13.6.0@sha256:ed8d300945bea97ccb652efc73d159634aefebff8c64f60eef6b6ac5ecebc4ae,3881
+- glib-0.13.7.0@sha256:25f62eb48d104342537dd1c724f07355d56226ca595ce6f1848415fbb7f59fa7,3120
+- gtk2hs-buildtools-0.13.5.1@sha256:bba050d5035c6375d0adc04a9000a58689a1b32284753d408a1181697abfcc6b,5288
