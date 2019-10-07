@@ -33,7 +33,7 @@ Library
 
     , hierarchical-clustering == 0.4.*
 
-    , diagrams-lib            == 0.5.*
+    , diagrams-lib            == 1.4.*
   GHC-options: -Wall
 
 Test-suite runtests
@@ -45,11 +45,11 @@ Test-suite runtests
 
     , hierarchical-clustering == 0.4.*
 
-    , diagrams-lib            == 0.5.*
-    , diagrams-cairo          == 0.5.*
+    , diagrams-lib            == 1.4.*
+    , diagrams-cairo          == 1.4.*
 
-    , hspec                   == 0.9.*
-    , HUnit                   == 1.2.*
+    , hspec                   == 2.7.*
+    , HUnit                   == 1.6.*
 
     , hierarchical-clustering-diagrams
   GHC-options: -Wall
